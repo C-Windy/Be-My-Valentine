@@ -28,7 +28,7 @@
     }
 
     .card{
-      width:min(92vw, 520px);
+      width:min(92vw, 560px);
       background: linear-gradient(180deg, var(--card), var(--card2));
       border: 1px solid rgba(255,255,255,0.20);
       border-radius: 22px;
@@ -40,9 +40,8 @@
     h1{ margin: 8px 0 6px; }
     p{ margin: 0 0 14px; color: rgba(255,255,255,0.86); line-height: 1.5; }
 
-    /* A faint full-image preview behind the puzzle */
     .previewWrap{
-      width: min(84vw, 320px);
+      width: min(90vw, 380px);
       margin: 14px auto 10px;
       padding: 10px;
       border-radius: 18px;
@@ -50,18 +49,18 @@
       border: 1px solid rgba(255,255,255,0.18);
     }
 
+    /* NOTE: width/height are set by JS so 3x3 and 4x4 both fit nicely */
+
     #puzzle{
-      width: 280px;
-      height: 280px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(2, 1fr);
       gap: 6px;
       position: relative;
+      border-radius: 16px;
+      overflow: hidden;
     }
 
-    /* faint background image preview */
+    /* faint full-image preview behind the puzzle */
     #puzzle::before{
       content:"";
       position:absolute;
@@ -69,14 +68,12 @@
       background-image:url('us.JPG');
       background-size: cover;
       background-position: center;
-      opacity: 0.18;
-      border-radius: 14px;
+      opacity: 0.16;
       pointer-events:none;
+      border-radius: 16px;
     }
 
     .tile{
-      width: 100%;
-      height: 100%;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,0.22);
       box-shadow: 0 10px 22px rgba(0,0,0,0.20);
@@ -86,21 +83,13 @@
 
       background-image: url('us.JPG');
       background-repeat: no-repeat;
-      background-size: 280px 280px; /* matches #puzzle size for clean slicing */
       transition: transform 0.12s ease, outline 0.12s ease, filter 0.12s ease;
     }
 
     .tile:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+    .selected{ outline: 3px solid rgba(255,255,255,0.95); transform: translateY(-2px) scale(1.01); }
 
-    .selected{
-      outline: 3px solid rgba(255,255,255,0.95);
-      transform: translateY(-2px) scale(1.01);
-    }
-
-    #valentine{
-      display:none;
-      margin-top: 16px;
-    }
+    #valentine{ display:none; margin-top: 16px; }
 
     .btn{
       background: white;
@@ -113,7 +102,6 @@
       margin: 10px 8px 0;
       font-weight: 800;
     }
-
     .btn:hover{ background: var(--pink3); }
 
     .small{
@@ -127,7 +115,7 @@
 <body>
   <div class="card">
     <h1>💘 Put Us Back Together 💘</h1>
-    <p>Easy mode: click two pieces to swap them. Solve to unlock the question 💖</p>
+    <p>Click two pieces to swap them. Solve to unlock the question 💖</p>
 
     <div class="previewWrap">
       <div id="puzzle" aria-label="Photo puzzle"></div>
@@ -139,22 +127,31 @@
       <button class="btn" onclick="celebrate()">YES 💕</button>
     </div>
 
-    <div class="small">Tip: if the photo still looks off, crop it to a square and re-upload as <b>us.jpg</b>.</div>
+    <div class="small">
+      Tip: crop the photo to a square for the cleanest slices.
+      If your file is named differently, update <b>us.JPG</b> in the code.
+    </div>
   </div>
 
   <script>
-    // Easier puzzle: 2x2 tile swap
     const puzzle = document.getElementById("puzzle");
-    const size = 2; // EASY MODE
+
+    // CHANGE THIS:
+    const size = 3; // 3 for 3x3, 4 for 4x4
+
     const tileCount = size * size;
 
-    // IMPORTANT: match these to #puzzle width/height in CSS
-    const puzzlePx = 280;
-    const tilePx = puzzlePx / size;
+    // Puzzle board size in px (kept responsive-ish)
+    const puzzlePx = (size === 4) ? 360 : 330; // 4x4 slightly bigger
+    const tilePx = Math.floor(puzzlePx / size);
 
-    // Each tile "shows" a portion of the photo.
-    // We'll shuffle by permuting which portion each tile displays.
-    let mapping = [...Array(tileCount).keys()]; // [0,1,2,3]
+    // Apply grid + sizing dynamically
+    puzzle.style.width = puzzlePx + "px";
+    puzzle.style.height = puzzlePx + "px";
+    puzzle.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+    puzzle.style.gridTemplateRows = `repeat(${size}, 1fr)`;
+
+    let mapping = [...Array(tileCount).keys()];
     let selectedIndex = null;
 
     function buildTiles(){
@@ -162,7 +159,9 @@
       for(let i=0; i<tileCount; i++){
         const t = document.createElement("div");
         t.className = "tile";
-        t.dataset.slot = i; // where the tile is on the board
+        t.dataset.slot = i;
+        t.style.width = tilePx + "px";
+        t.style.height = tilePx + "px";
         puzzle.appendChild(t);
       }
       render();
@@ -192,19 +191,22 @@
     }
 
     function shuffle(){
-      // Start solved, then do a few swaps. Keeps it solvable and easy.
       mapping = [...Array(tileCount).keys()];
-      const swaps = 4; // easy: small number
+
+      // Easy-ish shuffle: do a controlled number of random swaps
+      const swaps = (size === 4) ? 22 : 12; // 4x4 needs more mixing
       for(let k=0; k<swaps; k++){
         const a = Math.floor(Math.random()*tileCount);
         let b = Math.floor(Math.random()*tileCount);
         while(b === a) b = Math.floor(Math.random()*tileCount);
         [mapping[a], mapping[b]] = [mapping[b], mapping[a]];
       }
-      // Ensure it's not already solved
+
+      // Ensure not already solved
       if(isSolved()){
         [mapping[0], mapping[1]] = [mapping[1], mapping[0]];
       }
+
       selectedIndex = null;
       render();
       document.getElementById("valentine").style.display = "none";
@@ -228,7 +230,6 @@
         return;
       }
 
-      // swap the pieces shown in these two slots
       [mapping[selectedIndex], mapping[slot]] = [mapping[slot], mapping[selectedIndex]];
       selectedIndex = null;
       render();
@@ -240,7 +241,7 @@
     });
 
     function heartBurst(){
-      for(let i=0; i<22; i++){
+      for(let i=0; i<26; i++){
         const s = document.createElement("div");
         s.textContent = Math.random() > 0.5 ? "💖" : "💗";
         s.style.position = "fixed";
@@ -265,7 +266,6 @@
       alert("💖 Best decision ever 💖");
     }
 
-    // Build + shuffle on load
     buildTiles();
     shuffle();
   </script>
