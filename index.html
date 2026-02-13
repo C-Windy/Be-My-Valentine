@@ -1,363 +1,157 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>💛 Be My Valentine?</title>
-  <style>
-    :root {
-      --bg1: #0f1020;
-      --bg2: #2b174f;
-      --card: rgba(255,255,255,0.08);
-      --card2: rgba(255,255,255,0.12);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.75);
-      --yes: #ffd166;
-      --yes2: #ffe29a;
-      --no: rgba(255,255,255,0.18);
-      --shadow: 0 18px 45px rgba(0,0,0,0.35);
-      --radius: 22px;
-    }
+<meta charset="UTF-8">
+<title>💖 Puzzle For You 💖</title>
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      color: var(--text);
-      background: radial-gradient(1200px 800px at 20% 10%, #3a2bd4 0%, transparent 60%),
-                  radial-gradient(900px 700px at 80% 30%, #ff4d6d 0%, transparent 55%),
-                  linear-gradient(145deg, var(--bg1), var(--bg2));
-      overflow: hidden;
-    }
+<style>
+body {
+  margin:0;
+  background: linear-gradient(135deg, #ff4d6d, #ff8fab);
+  font-family: Arial, sans-serif;
+  text-align:center;
+  color:white;
+}
 
-    .sparkle {
-      position: fixed;
-      inset: -60px;
-      background-image:
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.10) 0 2px, transparent 3px),
-        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.08) 0 1.5px, transparent 3px),
-        radial-gradient(circle at 70% 30%, rgba(255,255,255,0.09) 0 2px, transparent 3px),
-        radial-gradient(circle at 85% 70%, rgba(255,255,255,0.07) 0 1.5px, transparent 3px);
-      filter: blur(0.2px);
-      opacity: 0.9;
-      animation: drift 18s linear infinite;
-      pointer-events: none;
-    }
+h1 {
+  margin-top:20px;
+}
 
-    @keyframes drift {
-      from { transform: translate3d(0,0,0) rotate(0deg); }
-      to   { transform: translate3d(-40px, 30px, 0) rotate(8deg); }
-    }
+#puzzle {
+  width:300px;
+  height:300px;
+  margin:30px auto;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap:2px;
+}
 
-    .card {
-      width: min(92vw, 560px);
-      background: linear-gradient(180deg, var(--card), var(--card2));
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 28px 24px;
-      text-align: center;
-      position: relative;
-      backdrop-filter: blur(10px);
-    }
+.tile {
+  width:100px;
+  height:100px;
+  background-image:url('us.jpg');
+  background-size:300px 300px;
+  cursor:pointer;
+}
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(0,0,0,0.18);
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
+.hidden {
+  background:none;
+  cursor:default;
+}
 
-    h1 {
-      margin: 10px 0 8px;
-      font-size: clamp(30px, 4vw, 40px);
-      letter-spacing: 0.2px;
-    }
+#valentine {
+  display:none;
+  margin-top:30px;
+}
 
-    p {
-      margin: 0 auto 18px;
-      max-width: 44ch;
-      line-height: 1.55;
-      color: var(--muted);
-      font-size: 16px;
-    }
+button {
+  background:white;
+  color:#ff4d6d;
+  border:none;
+  padding:12px 20px;
+  font-size:18px;
+  border-radius:20px;
+  cursor:pointer;
+  margin:10px;
+}
 
-    .heartline {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin: 14px 0 18px;
-      font-size: 18px;
-      opacity: 0.95;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-      position: relative;
-      height: 88px;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 14px 18px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease;
-      user-select: none;
-      min-width: 140px;
-    }
-
-    button:active { transform: translateY(1px) scale(0.99); }
-
-    #yesBtn {
-      background: linear-gradient(180deg, var(--yes), var(--yes2));
-      color: #2b1d00;
-      box-shadow: 0 12px 24px rgba(255, 209, 102, 0.25);
-    }
-
-    #yesBtn:hover { filter: brightness(1.03); transform: translateY(-1px); }
-
-    #noBtn {
-      background: rgba(255,255,255,0.10);
-      color: rgba(255,255,255,0.86);
-      border: 1px solid rgba(255,255,255,0.16);
-      position: relative;
-    }
-
-    #noBtn:hover { filter: brightness(1.05); }
-
-    .footer {
-      margin-top: 18px;
-      font-size: 13px;
-      color: rgba(255,255,255,0.6);
-    }
-
-    .modal {
-      position: fixed;
-      inset: 0;
-      display: none;
-      place-items: center;
-      background: rgba(0,0,0,0.55);
-      padding: 18px;
-    }
-
-    .modal.open { display: grid; }
-
-    .modalCard {
-      width: min(92vw, 520px);
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px 18px;
-      backdrop-filter: blur(10px);
-      text-align: center;
-    }
-
-    .big {
-      font-size: 42px;
-      margin: 6px 0 6px;
-    }
-
-    .tinyBtns {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 14px;
-      flex-wrap: wrap;
-    }
-
-    .tinyBtns a, .tinyBtns button {
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 150px;
-      padding: 12px 14px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .share {
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.18);
-      color: rgba(255,255,255,0.9);
-    }
-
-    .close {
-      background: linear-gradient(180deg, var(--yes), var(--yes2));
-      color: #2b1d00;
-      border: none;
-    }
-  </style>
+button:hover {
+  background:#ffe5ec;
+}
+</style>
 </head>
+
 <body>
-  <div class="sparkle"></div>
 
-  <main class="card" role="main" aria-label="Valentine page">
-    <div class="badge">💌 Incoming important question…</div>
+<h1>💘 Put Us Back Together 💘</h1>
+<p>Solve the puzzle to unlock something special...</p>
 
-    <h1 id="title">Will you be my Valentine? 💛</h1>
-    <p id="subtitle">
-      I’m officially requesting exclusive Valentine privileges:
-      snacks, laughs, and at least one cute photo together.
-    </p>
+<div id="puzzle"></div>
 
-    <div class="heartline" aria-hidden="true">💛 ✨ 💛 ✨ 💛</div>
+<div id="valentine">
+  <h2>💖 You solved it 💖</h2>
+  <h1>Will you be my Valentine?</h1>
+  <button onclick="celebrate()">YES 💕</button>
+</div>
 
-    <div class="buttons">
-      <button id="yesBtn">Yes 💛</button>
-      <button id="noBtn">No 🙃</button>
-    </div>
+<script>
+const puzzle = document.getElementById("puzzle");
+const size = 3;
+let tiles = [];
+let emptyIndex = 8;
 
-    <div class="footer" id="footerText">
-      (This page is legally required to be adorable.)
-    </div>
-  </main>
+// Create tiles
+for (let i = 0; i < 9; i++) {
+  const tile = document.createElement("div");
+  tile.classList.add("tile");
+  if (i === 8) {
+    tile.classList.add("hidden");
+  } else {
+    tile.style.backgroundPosition =
+      -(i % size) * 100 + "px " +
+      -Math.floor(i / size) * 100 + "px";
+  }
+  tile.dataset.index = i;
+  puzzle.appendChild(tile);
+  tiles.push(tile);
+}
 
-  <div class="modal" id="modal" aria-hidden="true">
-    <div class="modalCard" role="dialog" aria-modal="true" aria-label="Accepted">
-      <div class="big">🎉💛</div>
-      <h2 style="margin: 0 0 8px;">YAY. It’s official.</h2>
-      <p style="margin: 0; color: rgba(255,255,255,0.78); line-height: 1.55;">
-        Congratulations, you just made me the happiest human in this repo.<br/>
-        Now we plan something fun. 🥰
-      </p>
+// Shuffle
+function shuffle() {
+  for (let i = 0; i < 100; i++) {
+    let rand = Math.floor(Math.random() * 8);
+    swap(rand, emptyIndex);
+  }
+}
 
-      <div class="tinyBtns">
-        <a class="share" id="textMe" href="#">Text me “YES” 📱</a>
-        <button class="close" id="closeBtn">Close 💛</button>
-      </div>
-    </div>
-  </div>
+function swap(i1, i2) {
+  const temp = tiles[i1].style.backgroundPosition;
+  tiles[i1].style.backgroundPosition = tiles[i2].style.backgroundPosition;
+  tiles[i2].style.backgroundPosition = temp;
 
-  <script>
-    const yesBtn = document.getElementById("yesBtn");
-    const noBtn = document.getElementById("noBtn");
-    const title = document.getElementById("title");
-    const subtitle = document.getElementById("subtitle");
-    const footerText = document.getElementById("footerText");
-    const modal = document.getElementById("modal");
-    const closeBtn = document.getElementById("closeBtn");
-    const textMe = document.getElementById("textMe");
+  tiles[i1].classList.toggle("hidden");
+  tiles[i2].classList.toggle("hidden");
 
-    // OPTIONAL: customize these
-    const herName = "my favorite person"; // e.g., "Sophia"
-    const yourName = "Chris";            // change to your name if you want
-    const yourNumber = "";               // e.g., "+18065551234" (leave blank to disable SMS link)
+  emptyIndex = i1;
+}
 
-    // Set a slightly personalized subtitle
-    subtitle.textContent = `Hey ${herName}, will you be my Valentine? I promise: laughs, snacks, and an unreasonable amount of affection.`;
+puzzle.addEventListener("click", (e) => {
+  const index = tiles.indexOf(e.target);
+  if (index < 0) return;
 
-    // Confetti-ish hearts
-    function burstHearts() {
-      for (let i = 0; i < 26; i++) {
-        const s = document.createElement("div");
-        s.textContent = Math.random() > 0.5 ? "💛" : "✨";
-        s.style.position = "fixed";
-        s.style.left = Math.random() * 100 + "vw";
-        s.style.top = "-20px";
-        s.style.fontSize = (14 + Math.random() * 22) + "px";
-        s.style.opacity = "0.95";
-        s.style.transform = `rotate(${(Math.random()*50-25)}deg)`;
-        s.style.transition = "transform 1.4s linear, top 1.4s linear, opacity 1.4s linear";
-        document.body.appendChild(s);
+  const row = Math.floor(index / size);
+  const col = index % size;
+  const emptyRow = Math.floor(emptyIndex / size);
+  const emptyCol = emptyIndex % size;
 
-        requestAnimationFrame(() => {
-          s.style.top = (70 + Math.random() * 40) + "vh";
-          s.style.transform += " scale(1.1)";
-          s.style.opacity = "0";
-        });
+  if (
+    (Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
+    (Math.abs(col - emptyCol) === 1 && row === emptyRow)
+  ) {
+    swap(index, emptyIndex);
+    checkWin();
+  }
+});
 
-        setTimeout(() => s.remove(), 1500);
-      }
+function checkWin() {
+  for (let i = 0; i < 8; i++) {
+    const correct =
+      -(i % size) * 100 + "px " +
+      -Math.floor(i / size) * 100 + "px";
+    if (tiles[i].style.backgroundPosition !== correct) {
+      return;
     }
+  }
+  document.getElementById("valentine").style.display = "block";
+}
 
-    yesBtn.addEventListener("click", () => {
-      title.textContent = "She said YES 💛";
-      footerText.textContent = "Status: romantic success ✅";
-      burstHearts();
-      modal.classList.add("open");
-      modal.setAttribute("aria-hidden", "false");
+function celebrate() {
+  alert("💖 Best decision ever 💖");
+}
 
-      // Text link logic
-      if (yourNumber.trim()) {
-        const msg = encodeURIComponent("YES 💛 (Valentine accepted)");
-        textMe.href = `sms:${yourNumber}?&body=${msg}`;
-      } else {
-        textMe.href = "#";
-        textMe.addEventListener("click", (e) => {
-          e.preventDefault();
-          alert("Add your phone number in the code to enable the SMS link 🙂");
-        }, { once: true });
-      }
-    });
+shuffle();
+</script>
 
-    closeBtn.addEventListener("click", () => {
-      modal.classList.remove("open");
-      modal.setAttribute("aria-hidden", "true");
-    });
-
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) closeBtn.click();
-    });
-
-    // The “No” button dodges the cursor/taps (playfully)
-    let dodgeCount = 0;
-    const dodgePhrases = [
-      "No 🙃",
-      "Are you sure? 😅",
-      "That’s illegal 🚫💛",
-      "Try again 😇",
-      "Nope, wrong button",
-      "Nice attempt 😌"
-    ];
-
-    function dodge() {
-      dodgeCount++;
-      noBtn.textContent = dodgePhrases[Math.min(dodgeCount, dodgePhrases.length - 1)];
-
-      const parent = noBtn.parentElement;
-      const rect = parent.getBoundingClientRect();
-
-      // Move within the button area
-      const x = Math.random() * (rect.width - noBtn.offsetWidth);
-      const y = Math.random() * (rect.height - noBtn.offsetHeight);
-
-      noBtn.style.position = "absolute";
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
-
-      if (dodgeCount >= 5) {
-        footerText.textContent = "The 'No' button has chosen violence (it’s shy).";
-      }
-    }
-
-    // For desktop: move when hovered
-    noBtn.addEventListener("mouseenter", dodge);
-
-    // For mobile: move when tapped
-    noBtn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      dodge();
-    }, { passive: false });
-  </script>
 </body>
 </html>
-
