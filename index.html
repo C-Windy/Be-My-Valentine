@@ -1,157 +1,273 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>💖 Puzzle For You 💖</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>💖 Puzzle For You 💖</title>
 
-<style>
-body {
-  margin:0;
-  background: linear-gradient(135deg, #ff4d6d, #ff8fab);
-  font-family: Arial, sans-serif;
-  text-align:center;
-  color:white;
-}
+  <style>
+    :root{
+      --pink1:#ff4d6d;
+      --pink2:#ff8fab;
+      --pink3:#ffe5ec;
+      --card: rgba(255,255,255,0.14);
+      --card2: rgba(255,255,255,0.22);
+    }
 
-h1 {
-  margin-top:20px;
-}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      font-family: Arial, sans-serif;
+      text-align:center;
+      color:white;
+      background: radial-gradient(900px 600px at 25% 15%, rgba(255,255,255,0.18), transparent 55%),
+                  radial-gradient(900px 600px at 85% 25%, rgba(255,255,255,0.14), transparent 55%),
+                  linear-gradient(135deg, var(--pink1), var(--pink2));
+    }
 
-#puzzle {
-  width:300px;
-  height:300px;
-  margin:30px auto;
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap:2px;
-}
+    .card{
+      width:min(92vw, 520px);
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid rgba(255,255,255,0.20);
+      border-radius: 22px;
+      padding: 22px 18px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+      backdrop-filter: blur(10px);
+    }
 
-.tile {
-  width:100px;
-  height:100px;
-  background-image:url('us.JPG');
-  background-size:300px 300px;
-  cursor:pointer;
-}
+    h1{ margin: 8px 0 6px; }
+    p{ margin: 0 0 14px; color: rgba(255,255,255,0.86); line-height: 1.5; }
 
-.hidden {
-  background:none;
-  cursor:default;
-}
+    /* A faint full-image preview behind the puzzle */
+    .previewWrap{
+      width: min(84vw, 320px);
+      margin: 14px auto 10px;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
 
-#valentine {
-  display:none;
-  margin-top:30px;
-}
+    #puzzle{
+      width: 280px;
+      height: 280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 6px;
+      position: relative;
+    }
 
-button {
-  background:white;
-  color:#ff4d6d;
-  border:none;
-  padding:12px 20px;
-  font-size:18px;
-  border-radius:20px;
-  cursor:pointer;
-  margin:10px;
-}
+    /* faint background image preview */
+    #puzzle::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:url('us.JPG');
+      background-size: cover;
+      background-position: center;
+      opacity: 0.18;
+      border-radius: 14px;
+      pointer-events:none;
+    }
 
-button:hover {
-  background:#ffe5ec;
-}
-</style>
+    .tile{
+      width: 100%;
+      height: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.22);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.20);
+      cursor:pointer;
+      position: relative;
+      z-index: 1;
+
+      background-image: url('us.JPG');
+      background-repeat: no-repeat;
+      background-size: 280px 280px; /* matches #puzzle size for clean slicing */
+      transition: transform 0.12s ease, outline 0.12s ease, filter 0.12s ease;
+    }
+
+    .tile:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+
+    .selected{
+      outline: 3px solid rgba(255,255,255,0.95);
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    #valentine{
+      display:none;
+      margin-top: 16px;
+    }
+
+    .btn{
+      background: white;
+      color: var(--pink1);
+      border: none;
+      padding: 12px 18px;
+      font-size: 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      margin: 10px 8px 0;
+      font-weight: 800;
+    }
+
+    .btn:hover{ background: var(--pink3); }
+
+    .small{
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      margin-top: 10px;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="card">
+    <h1>💘 Put Us Back Together 💘</h1>
+    <p>Easy mode: click two pieces to swap them. Solve to unlock the question 💖</p>
 
-<h1>💘 Put Us Back Together 💘</h1>
-<p>Solve the puzzle to unlock something special...</p>
+    <div class="previewWrap">
+      <div id="puzzle" aria-label="Photo puzzle"></div>
+    </div>
 
-<div id="puzzle"></div>
+    <div id="valentine">
+      <h2 style="margin:10px 0 6px;">💖 You solved it 💖</h2>
+      <h1 style="margin:6px 0 8px;">Will you be my Valentine?</h1>
+      <button class="btn" onclick="celebrate()">YES 💕</button>
+    </div>
 
-<div id="valentine">
-  <h2>💖 You solved it 💖</h2>
-  <h1>Will you be my Valentine?</h1>
-  <button onclick="celebrate()">YES 💕</button>
-</div>
+    <div class="small">Tip: if the photo still looks off, crop it to a square and re-upload as <b>us.jpg</b>.</div>
+  </div>
 
-<script>
-const puzzle = document.getElementById("puzzle");
-const size = 3;
-let tiles = [];
-let emptyIndex = 8;
+  <script>
+    // Easier puzzle: 2x2 tile swap
+    const puzzle = document.getElementById("puzzle");
+    const size = 2; // EASY MODE
+    const tileCount = size * size;
 
-// Create tiles
-for (let i = 0; i < 9; i++) {
-  const tile = document.createElement("div");
-  tile.classList.add("tile");
-  if (i === 8) {
-    tile.classList.add("hidden");
-  } else {
-    tile.style.backgroundPosition =
-      -(i % size) * 100 + "px " +
-      -Math.floor(i / size) * 100 + "px";
-  }
-  tile.dataset.index = i;
-  puzzle.appendChild(tile);
-  tiles.push(tile);
-}
+    // IMPORTANT: match these to #puzzle width/height in CSS
+    const puzzlePx = 280;
+    const tilePx = puzzlePx / size;
 
-// Shuffle
-function shuffle() {
-  for (let i = 0; i < 100; i++) {
-    let rand = Math.floor(Math.random() * 8);
-    swap(rand, emptyIndex);
-  }
-}
+    // Each tile "shows" a portion of the photo.
+    // We'll shuffle by permuting which portion each tile displays.
+    let mapping = [...Array(tileCount).keys()]; // [0,1,2,3]
+    let selectedIndex = null;
 
-function swap(i1, i2) {
-  const temp = tiles[i1].style.backgroundPosition;
-  tiles[i1].style.backgroundPosition = tiles[i2].style.backgroundPosition;
-  tiles[i2].style.backgroundPosition = temp;
-
-  tiles[i1].classList.toggle("hidden");
-  tiles[i2].classList.toggle("hidden");
-
-  emptyIndex = i1;
-}
-
-puzzle.addEventListener("click", (e) => {
-  const index = tiles.indexOf(e.target);
-  if (index < 0) return;
-
-  const row = Math.floor(index / size);
-  const col = index % size;
-  const emptyRow = Math.floor(emptyIndex / size);
-  const emptyCol = emptyIndex % size;
-
-  if (
-    (Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
-    (Math.abs(col - emptyCol) === 1 && row === emptyRow)
-  ) {
-    swap(index, emptyIndex);
-    checkWin();
-  }
-});
-
-function checkWin() {
-  for (let i = 0; i < 8; i++) {
-    const correct =
-      -(i % size) * 100 + "px " +
-      -Math.floor(i / size) * 100 + "px";
-    if (tiles[i].style.backgroundPosition !== correct) {
-      return;
+    function buildTiles(){
+      puzzle.innerHTML = "";
+      for(let i=0; i<tileCount; i++){
+        const t = document.createElement("div");
+        t.className = "tile";
+        t.dataset.slot = i; // where the tile is on the board
+        puzzle.appendChild(t);
+      }
+      render();
     }
-  }
-  document.getElementById("valentine").style.display = "block";
-}
 
-function celebrate() {
-  alert("💖 Best decision ever 💖");
-}
+    function bgPosForPiece(pieceIndex){
+      const row = Math.floor(pieceIndex / size);
+      const col = pieceIndex % size;
+      return `${-col * tilePx}px ${-row * tilePx}px`;
+    }
 
-shuffle();
-</script>
+    function render(){
+      const tiles = [...puzzle.querySelectorAll(".tile")];
+      tiles.forEach((tile, slot) => {
+        const pieceIndex = mapping[slot];
+        tile.style.backgroundSize = `${puzzlePx}px ${puzzlePx}px`;
+        tile.style.backgroundPosition = bgPosForPiece(pieceIndex);
+        tile.classList.toggle("selected", selectedIndex === slot);
+      });
+    }
 
+    function isSolved(){
+      for(let i=0; i<tileCount; i++){
+        if(mapping[i] !== i) return false;
+      }
+      return true;
+    }
+
+    function shuffle(){
+      // Start solved, then do a few swaps. Keeps it solvable and easy.
+      mapping = [...Array(tileCount).keys()];
+      const swaps = 4; // easy: small number
+      for(let k=0; k<swaps; k++){
+        const a = Math.floor(Math.random()*tileCount);
+        let b = Math.floor(Math.random()*tileCount);
+        while(b === a) b = Math.floor(Math.random()*tileCount);
+        [mapping[a], mapping[b]] = [mapping[b], mapping[a]];
+      }
+      // Ensure it's not already solved
+      if(isSolved()){
+        [mapping[0], mapping[1]] = [mapping[1], mapping[0]];
+      }
+      selectedIndex = null;
+      render();
+      document.getElementById("valentine").style.display = "none";
+    }
+
+    puzzle.addEventListener("click", (e) => {
+      const tile = e.target.closest(".tile");
+      if(!tile) return;
+
+      const slot = Number(tile.dataset.slot);
+
+      if(selectedIndex === null){
+        selectedIndex = slot;
+        render();
+        return;
+      }
+
+      if(selectedIndex === slot){
+        selectedIndex = null;
+        render();
+        return;
+      }
+
+      // swap the pieces shown in these two slots
+      [mapping[selectedIndex], mapping[slot]] = [mapping[slot], mapping[selectedIndex]];
+      selectedIndex = null;
+      render();
+
+      if(isSolved()){
+        document.getElementById("valentine").style.display = "block";
+        heartBurst();
+      }
+    });
+
+    function heartBurst(){
+      for(let i=0; i<22; i++){
+        const s = document.createElement("div");
+        s.textContent = Math.random() > 0.5 ? "💖" : "💗";
+        s.style.position = "fixed";
+        s.style.left = (Math.random() * 100) + "vw";
+        s.style.top = "-20px";
+        s.style.fontSize = (16 + Math.random()*22) + "px";
+        s.style.opacity = "0.95";
+        s.style.transition = "transform 1.4s linear, top 1.4s linear, opacity 1.4s linear";
+        document.body.appendChild(s);
+
+        requestAnimationFrame(() => {
+          s.style.top = (70 + Math.random()*40) + "vh";
+          s.style.transform = `rotate(${Math.random()*60-30}deg) scale(1.1)`;
+          s.style.opacity = "0";
+        });
+
+        setTimeout(() => s.remove(), 1500);
+      }
+    }
+
+    function celebrate(){
+      alert("💖 Best decision ever 💖");
+    }
+
+    // Build + shuffle on load
+    buildTiles();
+    shuffle();
+  </script>
 </body>
 </html>
